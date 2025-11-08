@@ -1,0 +1,17 @@
+jobs:
+- name: hello
+  plan:
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          # google 镜像仓库下载，网络不好时下载镜像会慢
+          repository: ghcr.io/hlesey/busybox
+      run:
+        path: sh
+        args:
+        - -c
+        - |
+          echo -e "\n\nHello, Concourse!\n\nHello, LazyCAT!\n\n"

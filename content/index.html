@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concourse CI - 现代化的 CI/CD 流水线工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 5px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .lang-switch button {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .lang-switch button.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-switch button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #5a67d8;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #5a67d8;
+        }
+
+        .section h3 {
+            color: #6b46c1;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #5a67d8;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(90, 103, 216, 0.2);
+        }
+
+        .feature-card h4 {
+            color: #5a67d8;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #e2e8f0;
+        }
+
+        .info-box {
+            background: #ebf4ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+
+        table th,
+        table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+
+        table th {
+            background: #5a67d8;
+            color: white;
+            font-weight: 600;
+        }
+
+        table tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #5a67d8;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #4c51bf;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .footer a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .lang-content {
+            display: none;
+        }
+
+        .lang-content.active {
+            display: block;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .highlight {
+            color: #5a67d8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="lang-switch">
+                <button onclick="switchLang('zh')" id="btn-zh" class="active">中文</button>
+                <button onclick="switchLang('en')" id="btn-en">English</button>
+            </div>
+            <h1>Concourse CI</h1>
+            <p id="subtitle-zh" class="lang-content active">现代化的 CI/CD 流水线工具</p>
+            <p id="subtitle-en" class="lang-content">Modern CI/CD Pipeline Tool</p>
+        </div>
+
+        <div class="content">
+            <!-- 中文内容 -->
+            <div id="content-zh" class="lang-content active">
+                <div class="section">
+                    <h2>📖 应用简介</h2>
+                    <p>Concourse 是一个基于容器的自动化系统，使用 Go 语言编写，主要用于持续集成（CI）和持续交付（CD）。它通过可扩展的流水线（Pipeline）模型来定义和运行各种自动化任务，从最简单的构建脚本到复杂的多阶段部署流程。</p>
+                    <br>
+                    <p>Concourse 的设计理念强调：<span class="highlight">幂等性</span>、<span class="highlight">不可变性</span>、<span class="highlight">声明式配置</span>、<span class="highlight">无状态工作节点</span>和<span class="highlight">可重现的构建</span>，确保 CI/CD 流程的可靠性和一致性。</p>
+
+                    <div class="success-box">
+                        <strong>🚀 本应用已针对 Lazycat 平台优化</strong>
+                        <p>访问 <a href="https://lazycat.cloud" target="_blank">Lazycat 平台</a>，在应用商店搜索 "Concourse CI"，即可一键部署使用！</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>✨ 主要功能</h2>
+                    <div class="features">
+                        <div class="feature-card">
+                            <h4>🔄 流水线即代码</h4>
+                            <p>所有工作流都在 YAML 文件中定义，使流水线可版本控制、易于共享和协作</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🐳 容器优先</h4>
+                            <p>原生支持容器技术，所有任务都在 Docker 镜像中运行，确保环境一致性</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📦 资源抽象</h4>
+                            <p>统一的资源接口，支持 Git、S3、Docker 镜像、时间触发器等多种输入输出类型</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔧 强大的调试工具</h4>
+                            <p>内置 fly execute 本地运行任务、fly intercept 调试容器，快速定位问题</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>♻️ 幂等性保证</h4>
+                            <p>任务设计为短暂且幂等，确保构建的可重现性和可靠性</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🌐 Web UI</h4>
+                            <p>直观的可视化界面，实时查看流水线状态和任务执行情况</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔐 访问控制</h4>
+                            <p>支持多团队管理和精细的权限控制，保障企业级安全需求</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📊 并行执行</h4>
+                            <p>自动并行化独立任务，充分利用系统资源，提高构建效率</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>🚀 快速开始</h2>
+
+                    <h3>访问应用</h3>
+                    <p>应用部署成功后，访问你的应用地址（默认端口 8080）</p>
+                    <div class="info-box">
+                        <strong>默认登录凭证：</strong><br>
+                        用户名: <code>admin</code><br>
+                        密码: <code>admin</code>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ 安全提示：</strong> 生产环境请务必修改默认密码！
+                    </div>
+
+                    <h3>安装 Fly CLI 工具</h3>
+                    <ol>
+                        <li>访问 Concourse Web UI</li>
+                        <li>点击右上角下载对应系统的 <code>fly</code> CLI 工具</li>
+                        <li>将下载的文件放入系统 PATH 中并赋予执行权限</li>
+                    </ol>
+
+                    <h3>创建你的第一个流水线</h3>
+                    <p><strong>1. 创建流水线配置文件 pipeline.yml：</strong></p>
+                    <div class="code-block">
+<pre><code>jobs:
+- name: hello-world
+  plan:
+  - task: say-hello
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: ghcr.io/hlesey/busybox
+      run:
+        path: sh
+        args:
+        - -c
+        - |
+          echo "Hello, Concourse!"
+          echo "Hello, LazyCAT!"
+</code></pre>
+                    </div>
+
+                    <p><strong>2. 登录到 Concourse：</strong></p>
+                    <div class="code-block">
+<pre><code id="login-cmd-zh">fly -t tutorial login -c https://your-app-url -u admin -p admin</code></pre>
+                    </div>
+
+                    <p><strong>3. 设置流水线：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial set-pipeline -p my-first-pipeline -c pipeline.yml</code></pre>
+                    </div>
+
+                    <p><strong>4. 启用流水线：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial unpause-pipeline -p my-first-pipeline</code></pre>
+                    </div>
+
+                    <p><strong>5. 触发流水线执行：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial trigger-job -j my-first-pipeline/hello-world --watch</code></pre>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>⚙️ 配置说明</h2>
+
+                    <h3>环境变量配置</h3>
+                    <p>Concourse 通过环境变量进行配置。在 Lazycat 平台中，你可以在应用设置中修改以下环境变量：</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>变量名</th>
+                                <th>默认值</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CONCOURSE_EXTERNAL_URL</code></td>
+                                <td>自动配置</td>
+                                <td>外部访问地址，平台会自动设置</td>
+                            </tr>
+                            <tr>
+                                <td><code>CONCOURSE_ADD_LOCAL_USER</code></td>
+                                <td>admin:admin</td>
+                                <td>本地用户凭证（格式：用户名:密码）</td>
+                            </tr>
+                            <tr>
+                                <td><code>CONCOURSE_POSTGRES_HOST</code></td>
+                                <td>concourse-db</td>
+                                <td>PostgreSQL 数据库主机地址</td>
+                            </tr>
+                            <tr>
+                                <td><code>CONCOURSE_WORKER_RUNTIME</code></td>
+                                <td>containerd</td>
+                                <td>Worker 运行时引擎</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>系统要求</h3>
+                    <ul>
+                        <li><strong>内存</strong>：建议至少 2GB</li>
+                        <li><strong>存储</strong>：数据库数据会持久化存储</li>
+                        <li><strong>网络</strong>：需要访问容器镜像仓库</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>📝 常用命令</h2>
+
+                    <h3>Fly CLI 常用命令</h3>
+
+                    <p><strong>登录到 Concourse：</strong></p>
+                    <div class="code-block">
+<pre><code id="fly-login-zh">fly -t tutorial login -c https://your-app-url</code></pre>
+                    </div>
+
+                    <p><strong>查看所有目标（targets）：</strong></p>
+                    <div class="code-block">
+<pre><code>fly targets</code></pre>
+                    </div>
+
+                    <p><strong>查看所有流水线：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial pipelines</code></pre>
+                    </div>
+
+                    <p><strong>查看流水线配置：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial get-pipeline -p my-pipeline</code></pre>
+                    </div>
+
+                    <p><strong>删除流水线：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial destroy-pipeline -p my-pipeline</code></pre>
+                    </div>
+
+                    <p><strong>查看任务日志：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial watch -j my-pipeline/my-job</code></pre>
+                    </div>
+
+                    <p><strong>本地执行任务（调试用）：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial execute -c task.yml</code></pre>
+                    </div>
+
+                    <p><strong>进入容器调试：</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial intercept -j my-pipeline/my-job</code></pre>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>⚠️ 注意事项</h2>
+                    <div class="warning-box">
+                        <ul>
+                            <li><strong>资源需求</strong>：Concourse 需要一定的系统资源，建议至少 2GB 内存</li>
+                            <li><strong>安全提示</strong>：默认密码为 admin/admin，生产环境请通过修改环境变量 <code>CONCOURSE_ADD_LOCAL_USER</code> 来更改密码</li>
+                            <li><strong>持久化</strong>：数据库数据已配置持久化存储，卸载应用前请注意备份</li>
+                            <li><strong>镜像下载</strong>：部分容器镜像可能从国外仓库下载，网络不佳时可能较慢，建议使用国内镜像源</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>🔗 相关链接</h2>
+                    <ul>
+                        <li><a href="https://concourse-ci.org/" target="_blank">Concourse 官方网站</a></li>
+                        <li><a href="https://concourse-ci.org/docs.html" target="_blank">官方文档</a></li>
+                        <li><a href="https://github.com/concourse/concourse" target="_blank">GitHub 仓库</a></li>
+                        <li><a href="https://lazycat.cloud" target="_blank">Lazycat Apps 平台</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 英文内容 -->
+            <div id="content-en" class="lang-content">
+                <div class="section">
+                    <h2>📖 Introduction</h2>
+                    <p>Concourse is a container-based automation system written in Go, primarily used for Continuous Integration (CI) and Continuous Delivery (CD). It uses an extensible Pipeline model to define and run various automation tasks, from simple build scripts to complex multi-stage deployment processes.</p>
+                    <br>
+                    <p>Concourse's design philosophy emphasizes: <span class="highlight">idempotency</span>, <span class="highlight">immutability</span>, <span class="highlight">declarative configuration</span>, <span class="highlight">stateless workers</span>, and <span class="highlight">reproducible builds</span>, ensuring reliability and consistency in CI/CD processes.</p>
+
+                    <div class="success-box">
+                        <strong>🚀 Optimized for Lazycat Platform</strong>
+                        <p>Visit <a href="https://lazycat.cloud" target="_blank">Lazycat Platform</a>, search for "Concourse CI" in the app store, and deploy with one click!</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>✨ Main Features</h2>
+                    <div class="features">
+                        <div class="feature-card">
+                            <h4>🔄 Pipeline-as-Code</h4>
+                            <p>All workflows defined in YAML files, making pipelines version-controlled and easy to share</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🐳 Container-First</h4>
+                            <p>Native container support, all tasks run inside Docker images ensuring environment consistency</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📦 Resource Abstraction</h4>
+                            <p>Unified resource interface supporting Git, S3, Docker images, time triggers, and more</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔧 Powerful Debugging Tools</h4>
+                            <p>Built-in fly execute for local task execution and fly intercept for container debugging</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>♻️ Idempotency Guarantee</h4>
+                            <p>Tasks designed to be ephemeral and idempotent, ensuring build reproducibility</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🌐 Web UI</h4>
+                            <p>Intuitive visual interface for real-time pipeline status and task execution monitoring</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔐 Access Control</h4>
+                            <p>Multi-team management support with fine-grained permission control</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📊 Parallel Execution</h4>
+                            <p>Automatic parallelization of independent tasks for improved build efficiency</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>🚀 Quick Start</h2>
+
+                    <h3>Access Application</h3>
+                    <p>After successful deployment, access your application URL (default port 8080)</p>
+                    <div class="info-box">
+                        <strong>Default Credentials:</strong><br>
+                        Username: <code>admin</code><br>
+                        Password: <code>admin</code>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Security Notice:</strong> Please change the default password in production!
+                    </div>
+
+                    <h3>Install Fly CLI Tool</h3>
+                    <ol>
+                        <li>Access Concourse Web UI</li>
+                        <li>Download the <code>fly</code> CLI tool for your system from the top-right corner</li>
+                        <li>Add the downloaded file to your system PATH and make it executable</li>
+                    </ol>
+
+                    <h3>Create Your First Pipeline</h3>
+                    <p><strong>1. Create pipeline configuration file pipeline.yml:</strong></p>
+                    <div class="code-block">
+<pre><code>jobs:
+- name: hello-world
+  plan:
+  - task: say-hello
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: ghcr.io/hlesey/busybox
+      run:
+        path: sh
+        args:
+        - -c
+        - |
+          echo "Hello, Concourse!"
+          echo "Hello, LazyCAT!"
+</code></pre>
+                    </div>
+
+                    <p><strong>2. Login to Concourse:</strong></p>
+                    <div class="code-block">
+<pre><code id="login-cmd-en">fly -t tutorial login -c https://your-app-url -u admin -p admin</code></pre>
+                    </div>
+
+                    <p><strong>3. Set the pipeline:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial set-pipeline -p my-first-pipeline -c pipeline.yml</code></pre>
+                    </div>
+
+                    <p><strong>4. Unpause the pipeline:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial unpause-pipeline -p my-first-pipeline</code></pre>
+                    </div>
+
+                    <p><strong>5. Trigger pipeline execution:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial trigger-job -j my-first-pipeline/hello-world --watch</code></pre>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>⚙️ Configuration</h2>
+
+                    <h3>Environment Variables</h3>
+                    <p>Concourse is configured through environment variables. On the Lazycat platform, you can modify the following environment variables in the application settings:</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Variable Name</th>
+                                <th>Default Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CONCOURSE_EXTERNAL_URL</code></td>
+                                <td>Auto-configured</td>
+                                <td>External access URL, automatically set by platform</td>
+                            </tr>
+                            <tr>
+                                <td><code>CONCOURSE_ADD_LOCAL_USER</code></td>
+                                <td>admin:admin</td>
+                                <td>Local user credentials (format: username:password)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CONCOURSE_POSTGRES_HOST</code></td>
+                                <td>concourse-db</td>
+                                <td>PostgreSQL database host address</td>
+                            </tr>
+                            <tr>
+                                <td><code>CONCOURSE_WORKER_RUNTIME</code></td>
+                                <td>containerd</td>
+                                <td>Worker runtime engine</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>System Requirements</h3>
+                    <ul>
+                        <li><strong>Memory</strong>: At least 2GB recommended</li>
+                        <li><strong>Storage</strong>: Database data is persisted</li>
+                        <li><strong>Network</strong>: Requires access to container image registries</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>📝 Common Commands</h2>
+
+                    <h3>Fly CLI Common Commands</h3>
+
+                    <p><strong>Login to Concourse:</strong></p>
+                    <div class="code-block">
+<pre><code id="fly-login-en">fly -t tutorial login -c https://your-app-url</code></pre>
+                    </div>
+
+                    <p><strong>List all targets:</strong></p>
+                    <div class="code-block">
+<pre><code>fly targets</code></pre>
+                    </div>
+
+                    <p><strong>List all pipelines:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial pipelines</code></pre>
+                    </div>
+
+                    <p><strong>Get pipeline configuration:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial get-pipeline -p my-pipeline</code></pre>
+                    </div>
+
+                    <p><strong>Delete a pipeline:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial destroy-pipeline -p my-pipeline</code></pre>
+                    </div>
+
+                    <p><strong>Watch job logs:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial watch -j my-pipeline/my-job</code></pre>
+                    </div>
+
+                    <p><strong>Execute task locally (for debugging):</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial execute -c task.yml</code></pre>
+                    </div>
+
+                    <p><strong>Intercept container for debugging:</strong></p>
+                    <div class="code-block">
+<pre><code>fly -t tutorial intercept -j my-pipeline/my-job</code></pre>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>⚠️ Important Notes</h2>
+                    <div class="warning-box">
+                        <ul>
+                            <li><strong>Resource Requirements</strong>: Concourse requires adequate system resources, at least 2GB memory recommended</li>
+                            <li><strong>Security Notice</strong>: Default password is admin/admin, change it in production by modifying <code>CONCOURSE_ADD_LOCAL_USER</code> environment variable</li>
+                            <li><strong>Persistence</strong>: Database data is configured for persistent storage, backup before uninstalling</li>
+                            <li><strong>Image Download</strong>: Some container images may be downloaded from overseas repositories, which might be slow with poor network conditions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>🔗 Related Links</h2>
+                    <ul>
+                        <li><a href="https://concourse-ci.org/" target="_blank">Concourse Official Website</a></li>
+                        <li><a href="https://concourse-ci.org/docs.html" target="_blank">Official Documentation</a></li>
+                        <li><a href="https://github.com/concourse/concourse" target="_blank">GitHub Repository</a></li>
+                        <li><a href="https://lazycat.cloud" target="_blank">Lazycat Apps Platform</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Concourse CI - Powered by <a href="https://lazycat.cloud" target="_blank">Lazycat Apps</a></p>
+            <p>Copyright &copy; <span id="current-year"></span> Lazycat Apps | Licensed under Apache-2.0</p>
+        </div>
+    </div>
+
+    <script>
+        // 获取当前年份
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // 动态获取当前域名并更新命令中的URL
+        function updateDynamicUrls() {
+            const currentUrl = window.location.protocol + '//' + window.location.host;
+
+            // 更新所有包含示例URL的元素
+            const loginCmdZh = document.getElementById('login-cmd-zh');
+            const loginCmdEn = document.getElementById('login-cmd-en');
+            const flyLoginZh = document.getElementById('fly-login-zh');
+            const flyLoginEn = document.getElementById('fly-login-en');
+
+            if (loginCmdZh) {
+                loginCmdZh.textContent = `fly -t tutorial login -c ${currentUrl} -u admin -p admin`;
+            }
+            if (loginCmdEn) {
+                loginCmdEn.textContent = `fly -t tutorial login -c ${currentUrl} -u admin -p admin`;
+            }
+            if (flyLoginZh) {
+                flyLoginZh.textContent = `fly -t tutorial login -c ${currentUrl}`;
+            }
+            if (flyLoginEn) {
+                flyLoginEn.textContent = `fly -t tutorial login -c ${currentUrl}`;
+            }
+        }
+
+        // 语言切换功能
+        function switchLang(lang) {
+            const langs = ['zh', 'en'];
+            langs.forEach(l => {
+                const contents = document.querySelectorAll(`#content-${l}, #subtitle-${l}`);
+                const btn = document.getElementById(`btn-${l}`);
+
+                if (l === lang) {
+                    contents.forEach(el => el.classList.add('active'));
+                    btn.classList.add('active');
+                } else {
+                    contents.forEach(el => el.classList.remove('active'));
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 保存语言偏好
+            localStorage.setItem('preferredLang', lang);
+        }
+
+        // 页面加载时恢复语言偏好
+        window.addEventListener('DOMContentLoaded', function() {
+            const preferredLang = localStorage.getItem('preferredLang') || 'zh';
+            switchLang(preferredLang);
+            updateDynamicUrls();
+        });
+    </script>
+</body>
+</html>
